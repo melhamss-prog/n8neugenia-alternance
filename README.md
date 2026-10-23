@@ -1,16 +1,14 @@
 # Agent de recherche d'alternance (n8n + RAG)
 
-Un agent n8n qui, deux fois par jour (10 h et 21 h), récupère les offres d'alternance, les compare à mon profil grâce au RAG, les note sur 10 avec une justification, et prépare une lettre de motivation et un message LinkedIn pour les offres à 7/10 ou plus. Tout est rangé dans un Google Sheet, consultable depuis un tableau de bord web. Rien n'est envoyé automatiquement : je garde le contrôle.
+Un agent n8n qui, deux fois par jour (10 h et 21 h), récupère les offres d'alternance, les compare à mon profil grâce au RAG, les note sur 10 avec une justification, et prépare une lettre de motivation et un message LinkedIn pour les offres à 7/10 ou plus. Tout est rangé dans un Google Sheet. Rien n'est envoyé automatiquement : je garde le contrôle.
 
 Projet réalisé dans le cadre du MSc AI Applied to Business (Eugenia School).
 
 ## Vidéo de présentation
 
-🎥 **Lien vidéo :** [À AJOUTER]
+🎥 La vidéo (démo du workflow, commandes n8n CLI et retour d'expérience) se trouve dans le dossier [`video/`](./video/).
 
-## Transcript
-
-Le transcript complet de la vidéo est disponible dans [TRANSCRIPT.md](./TRANSCRIPT.md).
+Le transcript complet est disponible dans [video/TRANSCRIPT.md](./video/TRANSCRIPT.md).
 
 ## Comment ça marche
 
@@ -37,17 +35,12 @@ Deux déclencheurs lancent le workflow : « Matin et soir » (10 h et 21 h) et �
 - **Déduplication entre les exécutions :** une offre déjà vue n'est jamais réanalysée.
 - **Gestion des erreurs :** si Gemini ne répond pas (quota atteint par exemple), l'offre est quand même enregistrée avec le statut « Erreur IA ».
 
-## Tableau de bord
-
-Un petit site web, créé avec Google Apps Script, lit le Google Sheet et l'affiche de façon lisible : liste des offres triées par note, filtres, recherche, et détail de chaque offre (justification, lettre, message LinkedIn, boutons pour copier). Le statut de chaque offre (À postuler, Postulé, Entretien…) se met à jour depuis la page.
-
 ## Contenu du dépôt
 
 - `workflow/agent-alternance.workflow.ts` : le workflow n8n au format TypeScript, généré avec la CLI n8n.
 - `workflow/agent-alternance.json` : le même workflow au format JSON, à importer directement dans n8n.
-- `apps-script/Code.gs` et `apps-script/Index.html` : le tableau de bord web.
-- `TRANSCRIPT.md` : le transcript de la vidéo.
 - `skills/` : les 3 skills OpenChamber utilisés pour le projet.
+- `video/` : la vidéo de présentation compressée et son transcript (`TRANSCRIPT.md`).
 
 ## Installation
 
@@ -59,7 +52,6 @@ Un petit site web, créé avec Google Apps Script, lit le Google Sheet et l'affi
    - **Google Sheets - Suivi alternance** : accès au Sheet de suivi (nœud Ajouter au Google Sheet).
 3. Choisir son fichier de profil dans « Télécharger le profil » et son Google Sheet dans « Ajouter au Google Sheet ».
 4. Lancer « Test manuel » pour vérifier, puis activer le workflow.
-5. Pour le tableau de bord : dans le Google Sheet, ouvrir Extensions > Apps Script, coller `Code.gs` et `Index.html` (fichier HTML nommé `Index`), déployer en application web, puis coller l'URL obtenue dans la constante `URL_TABLEAU` de `Code.gs`.
 
 ## Limites connues
 
