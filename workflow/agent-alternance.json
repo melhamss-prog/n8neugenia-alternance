@@ -1,0 +1,1052 @@
+{
+  "name": "Agent Alternance (version simple)",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Agent Alternance\nTourne tout seul à 10 h et 21 h (Europe/Paris). Test : nœud « Test manuel ».\n\n**1. Credentials à créer (noms affichés)**\n- « Google Gemini - Alternance » : ta clé Google AI Studio\n- « La bonne alternance - Clé API » : Header Auth, nom `Authorization`, valeur `Bearer TA_CLÉ`\n- « Google Drive - Profil alternance » : accès au Google Doc de profil\n- « Google Sheets - Suivi alternance » : accès au Google Sheet de suivi\n\n**2. À choisir dans les nœuds**: **Ton Google Doc de profil** et **ton Sheet** (onglet vide).\n\n**3. Avant un passage en réel** : dans « Nouvelles offres » > opération « Clear Deduplication History », sinon seules les nouvelles offres sont prises en compte.",
+        "height": 600,
+        "width": 540,
+        "color": "7"
+      },
+      "id": "def8734f-9e01-415a-8616-6f5bda49a5bf",
+      "name": "Mode d'emploi",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2624,
+        1152
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 1. Mon profil\nLe Google Doc est relu et rangé dans la mémoire de n8n, découpé en petits morceaux. C'est la base du RAG.",
+        "height": 620,
+        "width": 700,
+        "color": "6"
+      },
+      "id": "dbcb7b75-d3db-4a9e-acaf-521ae79ababd",
+      "name": "1. Profil",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1952,
+        1152
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 2. Les offres\nRécupère les offres, les sépare une par une, écarte les offres incomplètes (Filter) et ne garde que celles jamais vues.",
+        "height": 620,
+        "width": 1028,
+        "color": "5"
+      },
+      "id": "77289545-a7dc-41d5-b4e0-3e72876954e6",
+      "name": "2. Offres",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1232,
+        1152
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 3. L'analyse IA\nPour chaque offre : l'agent lit ton profil, note l'offre et rédige la lettre et le message LinkedIn si la note est de 7 ou plus.",
+        "height": 620,
+        "width": 560,
+        "color": "3"
+      },
+      "id": "6fe2c0e4-0c69-4b93-a55d-7a6157cd3ebf",
+      "name": "3. IA",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -128,
+        1152
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 4. Le résultat\nLe If sépare les offres à 7/10 ou plus (avec lettre et message LinkedIn) des autres. Une ligne par offre dans ton Google Sheet.",
+        "height": 620,
+        "width": 720,
+        "color": "4"
+      },
+      "id": "3bdc5c8f-5d4b-40ad-a188-ff8fc9133d17",
+      "name": "4. Résultat",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        464,
+        1152
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 10,21 * * *"
+            }
+          ]
+        }
+      },
+      "id": "9c39f4de-f080-41f5-bdb2-4d6c9d61fccd",
+      "name": "Matin et soir",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1904,
+        1376
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "6744a3ae-d5df-402c-beb6-6927b437fbfd",
+      "name": "Test manuel",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1904,
+        1552
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "15NzE2YAohlSNKGnHHWS9rJM64w8RBfrQ",
+          "mode": "list",
+          "cachedResultName": "profil-alternance.txt",
+          "cachedResultUrl": "https://drive.google.com/file/d/15NzE2YAohlSNKGnHHWS9rJM64w8RBfrQ/view?usp=drivesdk"
+        },
+        "options": {
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "text/markdown"
+            }
+          }
+        }
+      },
+      "id": "3469a048-7dd7-4c3f-a724-c08b188509b5",
+      "name": "Télécharger le profil",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -1696,
+        1456
+      ],
+      "executeOnce": true,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "LIisUYCGzg4rmIHP",
+          "name": "Google Drive - Profil alternance"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "memoryKey": {
+          "__rl": true,
+          "mode": "id",
+          "value": "profil_candidat"
+        },
+        "clearStore": true
+      },
+      "id": "535470a4-f0e2-477f-9ff9-1f848853e688",
+      "name": "Ranger le profil",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+      "typeVersion": 1.3,
+      "position": [
+        -1472,
+        1456
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "1dfc5312-dd38-4a6e-b01a-66ba9c50a6a4",
+      "name": "Vecteurs du profil",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -1536,
+        1664
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "uQ6aEOXJVtuCbaaX",
+          "name": "Google Gemini - Alternance"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "options": {}
+      },
+      "id": "6a75671f-c2f3-4992-b310-1ae7a10c5155",
+      "name": "Lire le profil",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        -1376,
+        1664
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.apprentissage.beta.gouv.fr/api/job/v1/search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "latitude",
+              "value": "48.8566"
+            },
+            {
+              "name": "longitude",
+              "value": "2.3522"
+            },
+            {
+              "name": "radius",
+              "value": "30"
+            },
+            {
+              "name": "target_diploma_level",
+              "value": "7"
+            },
+            {
+              "name": "romes",
+              "value": "M1707,M1402,M1806,M1705"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6b704319-1094-46d7-bde3-5630207569b0",
+      "name": "Chercher les offres",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1072,
+        1456
+      ],
+      "executeOnce": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "jIitn8P6mLIT44Zo",
+          "name": "La bonne alternance - Clé API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "jobs",
+        "options": {}
+      },
+      "id": "7b337db9-c77a-48e1-b3e1-444bdbe7537b",
+      "name": "Une offre par ligne",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -832,
+        1456
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "790b31d2-65a5-4357-8324-480bdc57ee0f",
+              "leftValue": "={{ $json.offer.title }}",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "rightValue": ""
+            },
+            {
+              "id": "92fa65ca-02ac-4bd1-b61c-9523e2dbe72f",
+              "leftValue": "={{ $json.apply.url }}",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "rightValue": ""
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "37f6a094-a872-4f6d-a6df-b68a189ec97b",
+      "name": "Offres complètes",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        -592,
+        1456
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "removeItemsSeenInPreviousExecutions",
+        "dedupeValue": "={{ $json.identifier.id }}",
+        "options": {
+          "historySize": 100000
+        }
+      },
+      "id": "d0299a1f-6fe6-480c-84b3-759ae3b2f244",
+      "name": "Nouvelles offres",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        -352,
+        1456
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Voici une offre d'alternance.\n\nTitre : {{ $json.offer.title }}\nEntreprise : {{ $json.workplace.brand || $json.workplace.name }}\nLieu : {{ $json.workplace.location.address }}\nCompétences demandées : {{ ($json.offer.desired_skills || []).join(', ') }}\nDescription :\n{{ $json.offer.description }}\n\nConsulte d'abord mon profil avec l'outil, puis analyse l'offre.",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "<role>\nTu aides un candidat à trouver une alternance. Il est en MSc AI Applied to Business (Eugenia), avec un master d'école de commerce : un profil hybride business et IA, autodidacte, intéressé par la finance, la tech, la mode et la musique. Rythme : 4 jours en entreprise, 1 jour à l'école, début le 23/11/2026, en Île-de-France.\n</role>\n\n<regles>\n1. Consulte TOUJOURS l'outil de profil avant de répondre. N'invente jamais d'expérience.\n2. Note l'offre sur 10 : compétences 4 pts, domaine et missions 3 pts, lieu et rythme 2 pts, attrait de l'entreprise 1 pt. Note 0 si ce n'est pas une alternance ou si le niveau n'est pas Bac+5.\n3. poste_manager : l'intitulé probable du responsable de l'équipe qui recrute.\n4. Si la note est de 7 ou plus :\n   - lettre : 250 mots maximum, vouvoiement, une ligne « Objet : ... » en tête, un lien concret entre l'entreprise, le poste et mes expériences, dans le style de ma lettre modèle, signée « Mohamed El Hamss ».\n   - message_linkedin : 300 caractères maximum, pour le manager, commence par « Bonjour, », cite le poste et un point fort, propose un échange.\n5. Si la note est inférieure à 7 : lettre et message_linkedin sont des textes vides.\n6. Réponds en français, uniquement avec le format demandé.\n</regles>\n\n<exemples>\n<exemple>\n<offre>\n<titre>Chef de projet IA H/F</titre>\n<entreprise>Fintech Alpha</entreprise>\n<description>Déploiement d'agents IA pour les équipes commerciales.</description>\n</offre>\n<reponse>\n{\"note\": 8, \"justification\": \"Le poste combine gestion de projet et IA, deux axes de mon profil.\", \"points_forts\": \"Pilotage de projets de bout en bout ; agent IA déployé en production.\", \"poste_manager\": \"Head of AI\", \"competences_manquantes\": \"LangChain\", \"lettre\": \"Objet : Candidature alternance chef de projet IA\\n\\nMadame, Monsieur,\\n\\n[Paragraphe qui relie le poste à mes projets IA.]\\n\\nCordialement,\\nMohamed El Hamss\", \"message_linkedin\": \"Bonjour, j'ai postulé à votre alternance de chef de projet IA. Ai-je une chance d'échanger 15 minutes ?\"}\n</reponse>\n</exemple>\n<exemple>\n<offre>\n<titre>Assistant marketing</titre>\n<entreprise>Maison Beta</entreprise>\n<description>Création de contenus pour les réseaux sociaux, sans lien direct avec l'IA.</description>\n</offre>\n<reponse>\n{\"note\": 5, \"justification\": \"Le poste est proche de mon expérience marketing, mais ne mobilise ni l'IA ni la gestion de projet.\", \"points_forts\": \"Expérience de campagnes et de réseaux sociaux.\", \"poste_manager\": \"Responsable marketing\", \"competences_manquantes\": \"Outils de création de contenu\", \"lettre\": \"\", \"message_linkedin\": \"\"}\n</reponse>\n</exemple>\n<exemple>\n<offre>\n<titre>Assistant comptable</titre>\n<entreprise>Cabinet Gamma</entreprise>\n<description>Saisie comptable et suivi des factures.</description>\n</offre>\n<reponse>\n{\"note\": 2, \"justification\": \"Le poste est comptable, hors de mon profil.\", \"points_forts\": \"\", \"poste_manager\": \"Expert-comptable\", \"competences_manquantes\": \"Comptabilité\", \"lettre\": \"\", \"message_linkedin\": \"\"}\n</reponse>\n</exemple>\n</exemples>\n\n<contre_exemples>\n<contre_exemple>\n<offre>\n<titre>Assistant marketing</titre>\n<entreprise>Maison Beta</entreprise>\n</offre>\n<mauvaise_reponse>\n{\"note\": 5, \"lettre\": \"Objet : candidature...\", \"message_linkedin\": \"Bonjour, ...\"}\n</mauvaise_reponse>\n<pourquoi_faux>Une lettre et un message ne doivent être rédigés que si la note est de 7 ou plus. Ici la note est 5.</pourquoi_faux>\n<bonne_reponse>\n{\"note\": 5, \"lettre\": \"\", \"message_linkedin\": \"\"}\n</bonne_reponse>\n</contre_exemple>\n<contre_exemple>\n<offre>\n<titre>Chef de projet IA H/F</titre>\n<entreprise>Fintech Alpha</entreprise>\n</offre>\n<mauvaise_reponse>\n{\"note\": 8, \"points_forts\": \"Dix ans d'expérience en intelligence artificielle dans la finance.\", ...}\n</mauvaise_reponse>\n<pourquoi_faux>Cette expérience n'existe pas dans le profil. Le modèle ne doit citer que ce qui est dans le profil consulté.</pourquoi_faux>\n<bonne_reponse>\n{\"note\": 8, \"points_forts\": \"Pilotage de projets de bout en bout ; agent IA déployé en production.\", ...}\n</bonne_reponse>\n</contre_exemple>\n</contre_exemples>\n\n<format_sortie>\nRéponds avec un seul objet JSON conforme au schéma demandé, sans texte autour.\n</format_sortie>",
+          "enableStreaming": false,
+          "batching": {
+            "batchSize": 1,
+            "delayBetweenBatches": 12000
+          }
+        }
+      },
+      "id": "3e0ef33c-2d48-4eb2-875c-d4ec4dbca493",
+      "name": "Analyser l'offre",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -32,
+        1456
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-flash-lite-latest",
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "id": "b8ecbd7a-3f78-4ec6-aa7e-f4d5ccbd4fba",
+      "name": "IA Gemini",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        -112,
+        1664
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "uQ6aEOXJVtuCbaaX",
+          "name": "Google Gemini - Alternance"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Profil du candidat : expériences, projets, compétences, envies et lettre de motivation modèle. À consulter pour chaque offre.",
+        "memoryKey": {
+          "__rl": true,
+          "mode": "id",
+          "value": "profil_candidat"
+        },
+        "topK": 6
+      },
+      "id": "60686597-93cc-4ef4-ab64-3d9a50da68a3",
+      "name": "Mon profil",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+      "typeVersion": 1.3,
+      "position": [
+        48,
+        1664
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "36dfaa30-d82c-4f28-bba7-079c1b684e8a",
+      "name": "Vecteurs de la recherche",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        48,
+        1840
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "uQ6aEOXJVtuCbaaX",
+          "name": "Google Gemini - Alternance"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"note\": 8,\n  \"justification\": \"2 à 3 phrases qui expliquent la note\",\n  \"points_forts\": \"mes expériences et projets les plus utiles pour ce poste\",\n  \"poste_manager\": \"Head of Growth\",\n  \"competences_manquantes\": \"compétences demandées absentes de mon profil\",\n  \"lettre\": \"Objet : ...\\n\\nMadame, Monsieur, ...\",\n  \"message_linkedin\": \"Bonjour, ...\"\n}"
+      },
+      "id": "a9709686-c63c-44ad-83f9-f895260cfd53",
+      "name": "Format de la note",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        320,
+        1632
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "543d5cd2-d938-4ba8-8995-43f9e95b0383",
+              "leftValue": "={{ $json.output ? $json.output.note : 0 }}",
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              },
+              "rightValue": 7
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "a033125f-348d-49d1-9563-877ef524ed0c",
+      "name": "Note ≥ 7 ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        528,
+        1456
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ff5ced8d-feca-43e7-b3d3-1a7ef3c1072c",
+              "name": "Date",
+              "value": "={{ $now.setZone('Europe/Paris').toFormat('dd/MM/yyyy HH:mm') }}",
+              "type": "string"
+            },
+            {
+              "id": "11fda34a-0138-475f-afdc-cb447b782ccc",
+              "name": "Entreprise",
+              "value": "={{ $('Nouvelles offres').item.json.workplace.brand || $('Nouvelles offres').item.json.workplace.name }}",
+              "type": "string"
+            },
+            {
+              "id": "a1df021a-9b10-453c-8f06-0f19ce750e09",
+              "name": "Poste",
+              "value": "={{ $('Nouvelles offres').item.json.offer.title }}",
+              "type": "string"
+            },
+            {
+              "id": "f8190a5e-42b0-408c-a1ef-2f59ca0d4842",
+              "name": "Lieu",
+              "value": "={{ $('Nouvelles offres').item.json.workplace.location.address }}",
+              "type": "string"
+            },
+            {
+              "id": "ad4cf8bd-a0e0-4127-8b28-c6caaba13f69",
+              "name": "Lien de l'offre",
+              "value": "={{ $('Nouvelles offres').item.json.apply.url }}",
+              "type": "string"
+            },
+            {
+              "id": "8970c6b7-70d9-4cc8-9e57-19fc4ea7dbf9",
+              "name": "Note /10",
+              "value": "={{ $json.output ? String($json.output.note) : '' }}",
+              "type": "string"
+            },
+            {
+              "id": "3f32ff31-9c8f-4f89-aa4e-19b15370bcfb",
+              "name": "Pourquoi",
+              "value": "={{ ($json.output || {}).justification || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "85af31ae-ca00-43ab-8388-c61938836534",
+              "name": "Points forts",
+              "value": "={{ ($json.output || {}).points_forts || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "fc4def8a-6fbf-4a24-906d-adce5c2eaa43",
+              "name": "Compétences manquantes",
+              "value": "={{ ($json.output || {}).competences_manquantes || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "ad4b440a-2f7a-4e63-b9ba-f89afba5b5ef",
+              "name": "Lettre de motivation",
+              "value": "={{ ($json.output || {}).lettre || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "df6eac30-29e2-4208-9851-d7b2eae5bd28",
+              "name": "Manager à chercher",
+              "value": "={{ ($json.output || {}).poste_manager || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "19c3cc34-f2b8-439f-bc77-02f9b48366d4",
+              "name": "Recherche LinkedIn",
+              "value": "={{ ($json.output || {}).lettre ? 'https://www.linkedin.com/search/results/people/?keywords=' + encodeURIComponent((($json.output || {}).poste_manager || '') + ' ' + ($('Nouvelles offres').item.json.workplace.brand || $('Nouvelles offres').item.json.workplace.name)) : '' }}",
+              "type": "string"
+            },
+            {
+              "id": "01793bab-0504-4e0c-a989-30c314a96e80",
+              "name": "Message LinkedIn",
+              "value": "={{ ($json.output || {}).message_linkedin || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "a8123581-303a-48cd-986c-ff75721bafef",
+              "name": "Statut",
+              "value": "À postuler",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c5949c8b-eb68-4853-8e1a-5cebde1045b9",
+      "name": "Ligne à postuler",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        768,
+        1360
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d970f510-bea4-4bda-9c23-f1fc7f53e50b",
+              "name": "Date",
+              "value": "={{ $now.setZone('Europe/Paris').toFormat('dd/MM/yyyy HH:mm') }}",
+              "type": "string"
+            },
+            {
+              "id": "d85c04bd-4f1e-47fd-9077-0ba725c8628c",
+              "name": "Entreprise",
+              "value": "={{ $('Nouvelles offres').item.json.workplace.brand || $('Nouvelles offres').item.json.workplace.name }}",
+              "type": "string"
+            },
+            {
+              "id": "96e4fe82-99a1-4eea-aee1-30a7c1376984",
+              "name": "Poste",
+              "value": "={{ $('Nouvelles offres').item.json.offer.title }}",
+              "type": "string"
+            },
+            {
+              "id": "deaacf3e-282e-4c3f-bb1c-81de99e46e21",
+              "name": "Lieu",
+              "value": "={{ $('Nouvelles offres').item.json.workplace.location.address }}",
+              "type": "string"
+            },
+            {
+              "id": "1f08058d-a58c-4190-a722-7191f735df64",
+              "name": "Lien de l'offre",
+              "value": "={{ $('Nouvelles offres').item.json.apply.url }}",
+              "type": "string"
+            },
+            {
+              "id": "e320b706-323d-4a81-bd9b-590d48030c75",
+              "name": "Note /10",
+              "value": "={{ $json.output ? String($json.output.note) : '' }}",
+              "type": "string"
+            },
+            {
+              "id": "b5c3dc91-61c7-4ef2-9769-a5364b752e12",
+              "name": "Pourquoi",
+              "value": "={{ ($json.output || {}).justification || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "c955bf9f-2fe9-4c2d-ba46-fd43a8ee057b",
+              "name": "Points forts",
+              "value": "={{ ($json.output || {}).points_forts || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "a6dec556-db3e-4b0c-b4b3-b73a0c75ca80",
+              "name": "Compétences manquantes",
+              "value": "={{ ($json.output || {}).competences_manquantes || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "87788c45-4fc8-4a27-a032-7e4847280cbf",
+              "name": "Lettre de motivation",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "db199f3a-ff15-40ef-a4d7-d5739ac52eb4",
+              "name": "Manager à chercher",
+              "value": "={{ ($json.output || {}).poste_manager || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "063191a0-d94c-438d-8c9b-bd0cce734e82",
+              "name": "Recherche LinkedIn",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "9033bc0d-c36f-400c-8482-0479dd1583f4",
+              "name": "Message LinkedIn",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "0aecfef1-7d43-4da5-a2c7-deef930662e7",
+              "name": "Statut",
+              "value": "={{ $json.output ? 'À voir' : 'Erreur IA' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "cc90d026-795d-45af-b294-61c4adb24ed6",
+      "name": "Ligne à voir",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        768,
+        1552
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "193sfNgwgjPK8KYW5TTUTHHI9TsD4e790z10ICaO_sf4",
+          "mode": "list",
+          "cachedResultName": "Suivi alternance Eugenia",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/193sfNgwgjPK8KYW5TTUTHHI9TsD4e790z10ICaO_sf4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/193sfNgwgjPK8KYW5TTUTHHI9TsD4e790z10ICaO_sf4/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Entreprise",
+              "displayName": "Entreprise",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Poste",
+              "displayName": "Poste",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Lieu",
+              "displayName": "Lieu",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Lien de l'offre",
+              "displayName": "Lien de l'offre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Note /10",
+              "displayName": "Note /10",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Pourquoi",
+              "displayName": "Pourquoi",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Points forts",
+              "displayName": "Points forts",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Compétences manquantes",
+              "displayName": "Compétences manquantes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Lettre de motivation",
+              "displayName": "Lettre de motivation",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Manager à chercher",
+              "displayName": "Manager à chercher",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Recherche LinkedIn",
+              "displayName": "Recherche LinkedIn",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Message LinkedIn",
+              "displayName": "Message LinkedIn",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Statut",
+              "displayName": "Statut",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "b41acfd6-7fc6-4bd0-a3c5-96003ee4419c",
+      "name": "Ajouter au Google Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1024,
+        1456
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zRzL3wEVcd5txqnm",
+          "name": "Google Sheets - Suivi alternance"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Matin et soir": {
+      "main": [
+        [
+          {
+            "node": "Télécharger le profil",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Test manuel": {
+      "main": [
+        [
+          {
+            "node": "Télécharger le profil",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Télécharger le profil": {
+      "main": [
+        [
+          {
+            "node": "Ranger le profil",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lire le profil": {
+      "ai_document": [
+        [
+          {
+            "node": "Ranger le profil",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ranger le profil": {
+      "main": [
+        [
+          {
+            "node": "Chercher les offres",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chercher les offres": {
+      "main": [
+        [
+          {
+            "node": "Une offre par ligne",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Une offre par ligne": {
+      "main": [
+        [
+          {
+            "node": "Offres complètes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mon profil": {
+      "ai_tool": [
+        [
+          {
+            "node": "Analyser l'offre",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyser l'offre": {
+      "main": [
+        [
+          {
+            "node": "Note ≥ 7 ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Note ≥ 7 ?": {
+      "main": [
+        [
+          {
+            "node": "Ligne à postuler",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ligne à voir",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ligne à postuler": {
+      "main": [
+        [
+          {
+            "node": "Ajouter au Google Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ligne à voir": {
+      "main": [
+        [
+          {
+            "node": "Ajouter au Google Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Offres complètes": {
+      "main": [
+        [
+          {
+            "node": "Nouvelles offres",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Nouvelles offres": {
+      "main": [
+        [
+          {
+            "node": "Analyser l'offre",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IA Gemini": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Analyser l'offre",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format de la note": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Analyser l'offre",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vecteurs du profil": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Ranger le profil",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vecteurs de la recherche": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Mon profil",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "pinData": {}
+}

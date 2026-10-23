@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agent Alternance</title>
+<style>
+:root{--bg:#fbfbfd;--card:#fff;--text:#1d1d1f;--muted:#6e6e73;--line:#e8e8ed;--accent:#0071e3;--ok:#1d7f3c;--mid:#b76e00;--low:#86868b;--radius:14px}
+@media (prefers-color-scheme: dark){:root{--bg:#000;--card:#1c1c1e;--text:#f5f5f7;--muted:#a1a1a6;--line:#38383a;--accent:#2997ff;--ok:#30d158;--mid:#ff9f0a;--low:#8e8e93}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Inter,Arial,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.5}
+.wrap{max-width:880px;margin:0 auto;padding:56px 24px 80px}
+h1{font-size:44px;font-weight:600;letter-spacing:-.02em;margin:0 0 12px}
+.lead{font-size:19px;color:var(--muted);margin:0 0 36px;max-width:620px}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:48px}
+.step{background:var(--card);border-radius:var(--radius);padding:18px;border:1px solid var(--line)}
+.step b{display:block;font-size:14px;margin-bottom:4px}
+.step span{font-size:13px;color:var(--muted)}
+.stats{display:flex;gap:32px;margin:0 0 24px;flex-wrap:wrap}
+.stats div{font-size:13px;color:var(--muted)}
+.stats strong{display:block;font-size:28px;font-weight:600;color:var(--text);letter-spacing:-.01em}
+.toolbar{display:flex;gap:12px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+.search{flex:1;min-width:200px;padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--text);font:inherit;font-size:15px}
+.seg{display:inline-flex;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:3px}
+.seg button{border:0;background:none;color:var(--muted);padding:7px 12px;border-radius:8px;font:inherit;font-size:13px;cursor:pointer}
+.seg button.on{background:var(--bg);color:var(--text);font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.list{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.row{display:grid;grid-template-columns:56px 1fr auto;gap:16px;align-items:center;padding:16px 18px;border-top:1px solid var(--line);cursor:pointer}
+.row:first-child{border-top:0}
+.row:hover{background:color-mix(in srgb,var(--accent) 5%,transparent)}
+.score{font-size:24px;font-weight:600;letter-spacing:-.01em;text-align:center}
+.s-hi{color:var(--ok)} .s-mid{color:var(--mid)} .s-lo{color:var(--low)}
+.title{font-size:16px;font-weight:600}
+.meta{font-size:13px;color:var(--muted)}
+.tag{font-size:12px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:3px 10px;white-space:nowrap}
+.empty{padding:48px;text-align:center;color:var(--muted)}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:opacity .25s}
+.overlay.on{opacity:1;pointer-events:auto}
+.sheet{position:fixed;top:0;right:0;height:100%;width:min(560px,100%);background:var(--card);transform:translateX(100%);transition:transform .3s ease;overflow-y:auto;box-shadow:-8px 0 30px rgba(0,0,0,.12)}
+.sheet.on{transform:none}
+.sheet-in{padding:32px 28px 56px}
+.close{float:right;border:0;background:var(--line);color:var(--text);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px}
+.sheet h2{font-size:26px;font-weight:600;letter-spacing:-.01em;margin:0 0 4px}
+.sec{margin-top:28px}
+.sec h3{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:0 0 8px}
+.sec p{margin:0;font-size:15px;white-space:pre-wrap}
+.box{background:var(--bg);border-radius:10px;padding:14px;font-size:14px;white-space:pre-wrap;max-height:260px;overflow:auto}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.btn{border:0;background:var(--accent);color:#fff;padding:9px 14px;border-radius:999px;font:inherit;font-size:14px;cursor:pointer;text-decoration:none;display:inline-block}
+.btn.ghost{background:var(--bg);color:var(--accent);border:1px solid var(--line)}
+select{font:inherit;font-size:14px;padding:8px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--text)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:10px 16px;border-radius:999px;font-size:14px;opacity:0;transition:opacity .25s;pointer-events:none}
+.toast.on{opacity:1}
+@media (max-width:640px){h1{font-size:34px}.steps{grid-template-columns:1fr 1fr}.row{grid-template-columns:44px 1fr}.row .tag{display:none}.score{font-size:20px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Agent Alternance</h1>
+  <p class="lead">Un agent n8n lit les offres d'alternance, les compare à mon profil grâce au RAG et prépare mes candidatures. Rien n'est envoyé sans moi.</p>
+
+  <div class="steps">
+    <div class="step"><b>1. Profil</b><span>Mon CV est découpé et indexé pour être consulté par l'IA.</span></div>
+    <div class="step"><b>2. Offres</b><span>Les offres complètes et nouvelles sont récupérées.</span></div>
+    <div class="step"><b>3. Analyse</b><span>Gemini note chaque offre sur 10 avec une justification.</span></div>
+    <div class="step"><b>4. Résultat</b><span>Une ligne par offre dans le Sheet, avec lettre et message.</span></div>
+  </div>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="toolbar">
+    <input class="search" id="q" placeholder="Rechercher une entreprise ou un poste">
+    <div class="seg" id="seg">
+      <button data-f="all" class="on">Toutes</button>
+      <button data-f="hi">7/10 et plus</button>
+      <button data-f="lo">Moins de 7</button>
+    </div>
+  </div>
+
+  <div class="list" id="list"><div class="empty">Chargement…</div></div>
+</div>
+
+<div class="overlay" id="ov"></div>
+<aside class="sheet" id="sheet"><div class="sheet-in" id="detail"></div></aside>
+<div class="toast" id="toast"></div>
+
+<script>
+const STATUTS = ['À postuler','Postulé','Contacté','Entretien','Refusé','À voir','Erreur IA'];
+let offres = [], filtre = 'all', recherche = '', ouverte = null;
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const note = (o) => parseFloat(String(o['Note /10'] || '').replace(',', '.')) || 0;
+const classe = (n) => n >= 7 ? 's-hi' : n >= 4 ? 's-mid' : 's-lo';
+
+function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('on'); setTimeout(()=>t.classList.remove('on'),1800); }
+
+function charger(){
+  google.script.run.withSuccessHandler(data => { offres = data || []; rendre(); })
+    .withFailureHandler(err => { $('list').innerHTML = '<div class="empty">Impossible de charger les offres : ' + esc(err.message) + '</div>'; })
+    .getOffres();
+}
+
+function rendre(){
+  const q = recherche.toLowerCase();
+  const liste = offres
+    .filter(o => filtre === 'all' || (filtre === 'hi' ? note(o) >= 7 : note(o) < 7))
+    .filter(o => !q || (o['Entreprise']+' '+o['Poste']).toLowerCase().includes(q))
+    .sort((a,b) => note(b) - note(a));
+
+  const hi = offres.filter(o => note(o) >= 7).length;
+  $('stats').innerHTML =
+    '<div><strong>'+offres.length+'</strong>offres</div>' +
+    '<div><strong>'+hi+'</strong>à 7/10 ou plus</div>' +
+    '<div><strong>'+offres.filter(o => o['Statut']==='À postuler').length+'</strong>à postuler</div>';
+
+  if (!liste.length) { $('list').innerHTML = '<div class="empty">Aucune offre ne correspond.</div>'; return; }
+
+  $('list').innerHTML = liste.map(o => {
+    const n = note(o);
+    return '<div class="row" data-l="'+esc(o.ligne)+'">' +
+      '<div class="score '+classe(n)+'">'+esc(o['Note /10'] || '–')+'</div>' +
+      '<div><div class="title">'+esc(o['Poste'])+'</div><div class="meta">'+esc(o['Entreprise'])+' · '+esc(o['Lieu'])+'</div></div>' +
+      '<span class="tag">'+esc(o['Statut'] || '–')+'</span>' +
+    '</div>';
+  }).join('');
+}
+
+function ouvrir(ligne){
+  const o = offres.find(x => String(x.ligne) === String(ligne));
+  if (!o) return;
+  ouverte = o;
+  const n = note(o);
+  const bloc = (titre, texte) => texte ? '<div class="sec"><h3>'+titre+'</h3><p>'+esc(texte)+'</p></div>' : '';
+  const boxe = (titre, texte) => texte ? '<div class="sec"><h3>'+titre+'</h3><div class="box">'+esc(texte)+'</div></div>' : '';
+
+  $('detail').innerHTML =
+    '<button class="close" id="fermer" aria-label="Fermer">✕</button>' +
+    '<div class="meta" style="margin-top:6px">'+esc(o['Date'])+'</div>' +
+    '<h2>'+esc(o['Poste'])+'</h2>' +
+    '<div class="meta">'+esc(o['Entreprise'])+' · '+esc(o['Lieu'])+'</div>' +
+    '<div class="sec"><h3>Note</h3><p><span class="score '+classe(n)+'" style="text-align:left;font-size:32px">'+esc(o['Note /10'] || '–')+' / 10</span></p></div>' +
+    bloc('Pourquoi cette note', o['Pourquoi']) +
+    bloc('Points forts', o['Points forts']) +
+    bloc('Compétences manquantes', o['Compétences manquantes']) +
+    bloc('Manager à chercher', o['Manager à chercher']) +
+    boxe('Lettre de motivation', o['Lettre de motivation']) +
+    boxe('Message LinkedIn', o['Message LinkedIn']) +
+    '<div class="sec"><h3>Actions</h3><div class="actions">' +
+      (o["Lien de l'offre"] ? '<a class="btn" href="'+esc(o["Lien de l'offre"])+'" target="_blank" rel="noopener">Voir l\'offre</a>' : '') +
+      (o['Recherche LinkedIn'] ? '<a class="btn ghost" href="'+esc(o['Recherche LinkedIn'])+'" target="_blank" rel="noopener">Chercher sur LinkedIn</a>' : '') +
+      (o['Lettre de motivation'] ? '<button class="btn ghost" data-copy="Lettre de motivation">Copier la lettre</button>' : '') +
+      (o['Message LinkedIn'] ? '<button class="btn ghost" data-copy="Message LinkedIn">Copier le message</button>' : '') +
+    '</div></div>' +
+    '<div class="sec"><h3>Statut</h3><select id="statut">' +
+      STATUTS.map(s => '<option'+(s===o['Statut']?' selected':'')+'>'+esc(s)+'</option>').join('') +
+    '</select></div>';
+
+  $('ov').classList.add('on'); $('sheet').classList.add('on');
+  $('fermer').onclick = fermer;
+  $('statut').onchange = (e) => changerStatut(o.ligne, e.target.value);
+  document.querySelectorAll('[data-copy]').forEach(b => b.onclick = () => copier(b.dataset.copy));
+}
+
+function fermer(){ $('ov').classList.remove('on'); $('sheet').classList.remove('on'); }
+
+function copier(champ){
+  const texte = ouverte[champ] || '';
+  navigator.clipboard.writeText(texte).then(() => toast('Copié'), () => toast('Copie impossible'));
+}
+
+function changerStatut(ligne, statut){
+  google.script.run
+    .withSuccessHandler(() => { ouverte.Statut = statut; const o = offres.find(x => x.ligne === ligne); if (o) o.Statut = statut; rendre(); toast('Statut mis à jour'); })
+    .withFailureHandler(err => toast('Erreur : ' + err.message))
+    .setStatut(ligne, statut);
+}
+
+$('list').addEventListener('click', e => { const r = e.target.closest('.row'); if (r) ouvrir(r.dataset.l); });
+$('ov').addEventListener('click', fermer);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') fermer(); });
+$('q').addEventListener('input', e => { recherche = e.target.value; rendre(); });
+$('seg').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  filtre = b.dataset.f;
+  document.querySelectorAll('#seg button').forEach(x => x.classList.toggle('on', x === b));
+  rendre();
+});
+
+charger();
+</script>
+</body>
+</html>
