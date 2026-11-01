@@ -6,15 +6,15 @@ Projet réalisé dans le cadre du MSc AI Applied to Business (Eugenia School).
 
 ## Vidéo de présentation
 
-🎥 La vidéo (démo du workflow, commandes n8n CLI et retour d'expérience) se trouve dans le dossier [`video/`](./video/).
+🎥 La vidéo (démo du workflow, commandes n8n CLI et retour d'expérience) se trouve dans le dossier [`Video/`](./Video/).
 
-Le transcript complet est disponible dans [video/TRANSCRIPT.md](./video/TRANSCRIPT.md).
+Le transcript complet est disponible dans [Video/TRANSCRIPT.md](./Video/TRANSCRIPT.md).
 
 ## Comment ça marche
 
 | Étape | Rôle | Nœuds |
 |---|---|---|
-| 1. Profil | Mon profil (Google Drive) est découpé en morceaux et indexé en mémoire : c'est la base du RAG. | Télécharger le profil, Lire le profil, Vecteurs du profil, Ranger le profil |
+| 1. Profil | Mon profil (Google Drive) est découpé en morceaux et indexé en mémoire : c'est la base du RAG. | Télécharger le profil, Ranger le profil, Lire le profil, Vecteurs du profil |
 | 2. Offres | Les offres de l'API La bonne alternance sont récupérées, séparées une par une, filtrées (titre et lien obligatoires) et dédupliquées. | Chercher les offres, Une offre par ligne, Offres complètes, Nouvelles offres |
 | 3. Analyse IA | Pour chaque offre, l'agent consulte mon profil, note l'offre sur 10 et rédige la lettre et le message LinkedIn si la note est de 7 ou plus. | Analyser l'offre, IA Gemini, Mon profil, Vecteurs de la recherche, Format de la note |
 | 4. Résultat | Les offres sont séparées selon leur note, puis ajoutées au Google Sheet, une ligne par offre. | Note ≥ 7 ?, Ligne à postuler, Ligne à voir, Ajouter au Google Sheet |
@@ -34,6 +34,7 @@ Deux déclencheurs lancent le workflow : « Matin et soir » (10 h et 21 h) et �
 - **Un seul nœud HTTP Request :** « Chercher les offres », car l'API La bonne alternance n'a pas de nœud natif dans n8n.
 - **Déduplication entre les exécutions :** une offre déjà vue n'est jamais réanalysée.
 - **Gestion des erreurs :** si Gemini ne répond pas (quota atteint par exemple), l'offre est quand même enregistrée avec le statut « Erreur IA ».
+- **Workflow documenté :** nœuds renommés en français, 5 cadres de couleur pour présenter le projet et ses 4 étapes, et 4 notes zoom sur les points clés (déclencheurs, déduplication, pièces de l'agent, prompt).
 
 ## Contenu du dépôt
 
